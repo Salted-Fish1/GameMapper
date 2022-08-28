@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import MapView from './views/MapView.vue'
+import MapComp from '@/components/MapComp.vue'
 </script>
 
 <template>
-	<MapView></MapView>
+	<MapComp></MapComp>
 </template>
 
 <style scoped></style>
