@@ -2,6 +2,7 @@ const serivce = require('../service/location.service');
 
 // 返回一个地址的 id
 const getLocation = async (ctx, next) => {
+	// console.log(ctx.request.body);
 	const { x, y } = ctx.request.body;
 	const result = await serivce.locationExist(x, y);
 	let loc_id = -1;

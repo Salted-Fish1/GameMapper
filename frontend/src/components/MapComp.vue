@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import L from 'leaflet'
 import { onMounted, ref } from 'vue'
+import { ElMessageBox } from 'element-plus'
 import '../../node_modules/leaflet/dist/leaflet.css'
 import axios from 'axios'
 
@@ -14,12 +15,47 @@ let map: L.Map
 let groundLayer: L.Layer
 const drawer = ref(false)
 let newMarker: L.Marker<any>
-const handleCloseDrawer = () => {
-	newMarker.removeFrom(map)
-}
-
+let newMarkerX: number
+let newMarkerY: number
 const newMarkerName = ref('')
 const newMarkerDesc = ref('')
+
+const handleClosedDrawer = () => {
+	// newMarker.removeFrom(map)
+}
+const handleClose = (done: any) => {
+	console.log('handleclose')
+	console.log('x: ' + newMarkerX)
+	console.log('y: ' + newMarkerY)
+
+	uploadMarker(
+		newMarkerX,
+		newMarkerY,
+		newMarkerName.value,
+		newMarkerDesc.value,
+	)
+	done()
+}
+const uploadMarker = (x: number, y: number, name: string, desc: string) => {
+	// console.log('yes')
+	const tem = {
+		name: name,
+		desc: desc,
+		type_id: 3,
+		x,
+		y,
+	}
+	console.log(tem)
+
+	axios({
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		method: 'post',
+		url: '/api/uploadMessage',
+		data: tem,
+	})
+}
 
 onMounted(() => {
 	map = L.map('map', {
@@ -38,8 +74,11 @@ onMounted(() => {
 	map.on('click', (e) => {
 		newMarker = L.marker([e.latlng.lat, e.latlng.lng])
 		newMarker.addTo(map)
-		const { lat: locx, lng: locy } = e.latlng
-		// console.log(locx, locy)
+		newMarkerX = e.latlng.lat
+		newMarkerY = e.latlng.lng
+		console.log('-------')
+		console.log(newMarkerX, newMarkerY)
+		// const { lat: newMarkerX, lng: newMarkerY } = e.latlng
 		drawer.value = true
 		// axios.post('/api/demo', {
 		// 	x: e.containerPoint.x,
@@ -51,7 +90,11 @@ onMounted(() => {
 
 <template>
 	<div id="map"></div>
-	<el-drawer v-model="drawer" @close="handleCloseDrawer">
+	<el-drawer
+		v-model="drawer"
+		@close="handleClosedDrawer"
+		:before-close="handleClose"
+	>
 		<template #header>
 			<h2>添加地标详细信息</h2>
 		</template>
@@ -60,8 +103,9 @@ onMounted(() => {
 		<el-input
 			v-model="newMarkerDesc"
 			placeholder="Please input Desciption"
+			type="textarea"
 		/>
-		<el-button>提交</el-button>
+		<el-button @click="uploadMarker">提交</el-button>
 	</el-drawer>
 </template>
 
