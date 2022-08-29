@@ -7,6 +7,12 @@ class DemoService {
 		console.log(result);
 		return result;
 	}
+
+	async getLocation(x, y) {
+		const statement = `SELECT * FROM location WHERE x = 10 AND y = 4; `;
+		const result = await connection.execute(statement);
+		return result[0];
+	}
 }
 
 module.exports = new DemoService();

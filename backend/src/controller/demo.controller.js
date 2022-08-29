@@ -5,7 +5,13 @@ class DemoController {
 		console.log(ctx.request.body);
 		const obj = ctx.request.body;
 		const result = await DemoService.upload(obj.x, obj.y);
-		ctx.body = { obj };
+		ctx.body = { result };
+	}
+
+	async getLocation(ctx, next) {
+		console.log('yes');
+		const result = await DemoService.getLocation();
+		ctx.body = result;
 	}
 }
 

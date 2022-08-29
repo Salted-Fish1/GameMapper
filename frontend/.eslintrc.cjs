@@ -13,6 +13,6 @@ module.exports = {
 		ecmaVersion: 'latest',
 	},
 	rules: {
-		'@typescript-eslint/no-inferrable-types': false,
+		'@typescript-eslint/no-inferrable-types': 0,
 	},
 }
