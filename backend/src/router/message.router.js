@@ -8,7 +8,7 @@ const evalMw = require('../middleware/evaluation.middleware');
 const typeMw = require('../middleware/type.middleware');
 
 msgRouter.post(
-	'/api/uploadMessage',
+	'/api/message',
 	// ctx.state.loc_id
 	locMw.getLocation,
 	// ctx.state.eval_id

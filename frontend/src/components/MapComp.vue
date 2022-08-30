@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import L from 'leaflet'
 import { onMounted, ref } from 'vue'
-import { ElMessageBox } from 'element-plus'
+import { useMarkerType } from '@/stores/markerType'
 import '../../node_modules/leaflet/dist/leaflet.css'
 import axios from 'axios'
 
@@ -19,7 +19,7 @@ let newMarkerX: number
 let newMarkerY: number
 const newMarkerName = ref('')
 const newMarkerDesc = ref('')
-
+const markerTypeRadio = ref()
 const handleClosedDrawer = () => {
 	// newMarker.removeFrom(map)
 }
@@ -33,17 +33,23 @@ const handleClose = (done: any) => {
 		newMarkerY,
 		newMarkerName.value,
 		newMarkerDesc.value,
+		markerTypeRadio.value,
 	)
 	done()
 }
-const uploadMarker = (x: number, y: number, name: string, desc: string) => {
-	// console.log('yes')
+const uploadMarker = (
+	x: number,
+	y: number,
+	name: string,
+	desc: string,
+	type: number,
+) => {
 	const tem = {
-		name: name,
-		desc: desc,
-		type_id: 3,
-		x,
-		y,
+		name: name ?? '失败的上传',
+		desc: desc ?? '失败的描述',
+		type_id: type ?? 1,
+		x: x ?? 0,
+		y: y ?? 0,
 	}
 	console.log(tem)
 
@@ -52,9 +58,21 @@ const uploadMarker = (x: number, y: number, name: string, desc: string) => {
 			'Content-Type': 'application/json',
 		},
 		method: 'post',
-		url: '/api/uploadMessage',
+		url: '/api/message',
 		data: tem,
 	})
+}
+
+const markerTypeStore = useMarkerType()
+markerTypeStore.$patch((state) => {
+	axios.get('/api/type').then((res) => {
+		state.markerTypeArray = res.data
+		// console.log(state.markerTypeArray)
+	})
+})
+
+const democheck = () => {
+	console.log(markerTypeRadio.value)
 }
 
 onMounted(() => {
@@ -76,14 +94,7 @@ onMounted(() => {
 		newMarker.addTo(map)
 		newMarkerX = e.latlng.lat
 		newMarkerY = e.latlng.lng
-		console.log('-------')
-		console.log(newMarkerX, newMarkerY)
-		// const { lat: newMarkerX, lng: newMarkerY } = e.latlng
 		drawer.value = true
-		// axios.post('/api/demo', {
-		// 	x: e.containerPoint.x,
-		// 	y: e.containerPoint.y,
-		// })
 	})
 })
 </script>
@@ -98,14 +109,24 @@ onMounted(() => {
 		<template #header>
 			<h2>添加地标详细信息</h2>
 		</template>
-
+		<el-radio-group v-model="markerTypeRadio">
+			<template
+				v-for="item in markerTypeStore.markerTypeArray"
+				:key="item.id"
+			>
+				<el-radio-button :label="item.id">
+					{{ item.name }}
+				</el-radio-button>
+			</template>
+		</el-radio-group>
 		<el-input v-model="newMarkerName" placeholder="Please input Name" />
 		<el-input
 			v-model="newMarkerDesc"
 			placeholder="Please input Desciption"
 			type="textarea"
 		/>
-		<el-button @click="uploadMarker">提交</el-button>
+		<el-button>提交</el-button>
+		<el-button @click="democheck">查看选中</el-button>
 	</el-drawer>
 </template>
 
