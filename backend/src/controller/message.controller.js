@@ -12,6 +12,11 @@ class MessageController {
 	async getMessage(ctx, next) {
 		ctx.body = await MessageService.getMessage();
 	}
+
+	async delMessage(ctx, next) {
+		// console.log(ctx.params);
+		ctx.body = await MessageService.delMessage(ctx.params.id);
+	}
 }
 
 module.exports = new MessageController();

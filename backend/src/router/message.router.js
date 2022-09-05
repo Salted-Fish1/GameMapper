@@ -19,5 +19,6 @@ msgRouter.post(
 );
 
 msgRouter.get('/api/message', msgCntlr.getMessage);
+msgRouter.delete('/api/message/:id', msgCntlr.delMessage);
 
 module.exports = msgRouter;

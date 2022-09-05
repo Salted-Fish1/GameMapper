@@ -20,6 +20,14 @@ class MessageService {
 		// console.log(result[0]);
 		return result[0];
 	}
+
+	async delMessage(id) {
+		const statement = 'DELETE FROM  message  WHERE `id` = ?;';
+
+		// console.log(id);
+		const result = await connection.execute(statement, [id]);
+		// console.log(result);
+	}
 }
 
 module.exports = new MessageService();

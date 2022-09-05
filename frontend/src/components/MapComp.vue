@@ -21,6 +21,12 @@ const newMarkerName = ref('')
 const newMarkerDesc = ref('')
 const markerTypeRadio = ref()
 const markerSet = new Set()
+let editMode = false
+
+const changeEditMode = () => {
+	console.log('old mode ' + editMode)
+	editMode = !editMode
+}
 
 const handleClosedDrawer = () => {
 	// newMarker.removeFrom(map)
@@ -96,24 +102,31 @@ onMounted(() => {
 		for (const item of items) {
 			const tempMarker = L.marker([item.x, item.y])
 			tempMarker.addTo(map)
+			tempMarker
+				.bindPopup('<b>Hello world!</b><br>I am a popup.')
+				.openPopup()
 			markerSet.add(tempMarker)
 		}
 	})
 
 	map.on('click', (e) => {
-		newMarker = L.marker([e.latlng.lat, e.latlng.lng])
-		newMarker.addTo(map)
-		newMarkerX = e.latlng.lat
-		newMarkerY = e.latlng.lng
-		drawer.value = true
-		markerSet.add(newMarker)
-		console.log(markerSet)
+		if (editMode === true) {
+			newMarker = L.marker([e.latlng.lat, e.latlng.lng])
+			newMarker.addTo(map)
+			newMarkerX = e.latlng.lat
+			newMarkerY = e.latlng.lng
+			drawer.value = true
+			markerSet.add(newMarker)
+			// console.log(markerSet)
+		}
 	})
 })
 </script>
 
 <template>
-	<div id="map"></div>
+	<div id="map">
+		<el-button @click="changeEditMode">测试用</el-button>
+	</div>
 	<el-drawer
 		v-model="drawer"
 		@close="handleClosedDrawer"
