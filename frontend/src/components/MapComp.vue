@@ -20,6 +20,8 @@ let newMarkerY: number
 const newMarkerName = ref('')
 const newMarkerDesc = ref('')
 const markerTypeRadio = ref()
+const markerSet = new Set()
+
 const handleClosedDrawer = () => {
 	// newMarker.removeFrom(map)
 }
@@ -89,12 +91,23 @@ onMounted(() => {
 		zoomOffset: 0,
 	}).addTo(map)
 
+	axios.get('/api/message').then((res) => {
+		const items = res.data
+		for (const item of items) {
+			const tempMarker = L.marker([item.x, item.y])
+			tempMarker.addTo(map)
+			markerSet.add(tempMarker)
+		}
+	})
+
 	map.on('click', (e) => {
 		newMarker = L.marker([e.latlng.lat, e.latlng.lng])
 		newMarker.addTo(map)
 		newMarkerX = e.latlng.lat
 		newMarkerY = e.latlng.lng
 		drawer.value = true
+		markerSet.add(newMarker)
+		console.log(markerSet)
 	})
 })
 </script>

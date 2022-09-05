@@ -12,6 +12,14 @@ class MessageService {
 			state['eval_id'],
 		]);
 	}
+
+	async getMessage() {
+		const statement =
+			'SELECT `id`, 	`name`, `desc`, ( SELECT `x` FROM location AS loc WHERE msg.loc_id = loc.id ) AS x, ( SELECT `y` FROM location AS loc WHERE msg.loc_id = loc.id ) AS y, ( SELECT `pos_num` FROM evaluation AS eval WHERE msg.eval_id = eval.id ) AS pos_num, ( SELECT `neg_num` FROM evaluation AS eval WHERE msg.eval_id = eval.id ) AS neg_num  FROM message AS msg';
+		const result = await connection.execute(statement);
+		// console.log(result[0]);
+		return result[0];
+	}
 }
 
 module.exports = new MessageService();

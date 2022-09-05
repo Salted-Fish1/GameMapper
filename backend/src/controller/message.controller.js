@@ -8,6 +8,10 @@ class MessageController {
 		await MessageService.createMessage(state);
 		ctx.body = 'success upload message';
 	}
+
+	async getMessage(ctx, next) {
+		ctx.body = await MessageService.getMessage();
+	}
 }
 
 module.exports = new MessageController();

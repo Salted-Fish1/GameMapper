@@ -18,4 +18,6 @@ msgRouter.post(
 	msgCntlr.uploadMessage
 );
 
+msgRouter.get('/api/message', msgCntlr.getMessage);
+
 module.exports = msgRouter;
