@@ -4,6 +4,8 @@ import { onMounted, ref } from 'vue'
 import { useMarkerType } from '@/stores/markerType'
 import '../../node_modules/leaflet/dist/leaflet.css'
 import axios from 'axios'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import type { Action } from 'element-plus'
 
 const groundMap = 'https://imgs.ali213.net/picfile/eldenring/{z}/{x}/{y}.jpg'
 
@@ -20,8 +22,10 @@ let newMarkerY: number
 const newMarkerName = ref('')
 const newMarkerDesc = ref('')
 const markerTypeRadio = ref()
-const markerSet = new Set()
+const markerMap = new Map()
 let editMode = false
+const dialogVisible = ref(false)
+let choosedMarker = ref()
 
 const changeEditMode = () => {
 	console.log('old mode ' + editMode)
@@ -83,6 +87,20 @@ const democheck = () => {
 	console.log(markerTypeRadio.value)
 }
 
+const openMarkerBox = (marker: L.Marker<any>) => {
+	choosedMarker.value = markerMap[marker['_leaflet_id']]
+	console.log(choosedMarker.value)
+	dialogVisible.value = true
+	// console.log(markerMap[marker['_leaflet_id']])
+
+	// console.log(marker)
+}
+
+const delMarker = (id: number) => {
+	console.log('del: ' + id)
+	axios.delete('/api/message/' + id).then((res) => console.log(res))
+}
+
 onMounted(() => {
 	map = L.map('map', {
 		attributionControl: false,
@@ -102,11 +120,14 @@ onMounted(() => {
 		for (const item of items) {
 			const tempMarker = L.marker([item.x, item.y])
 			tempMarker.addTo(map)
-			tempMarker
-				.bindPopup('<b>Hello world!</b><br>I am a popup.')
-				.openPopup()
-			markerSet.add(tempMarker)
+			// tempMarker.
+			tempMarker.on('click', (e) => {
+				openMarkerBox(tempMarker)
+			})
+			const tempMarkerId: number = tempMarker['_leaflet_id']
+			markerMap[tempMarkerId] = item
 		}
+		// console.log(markerMap)
 	})
 
 	map.on('click', (e) => {
@@ -127,6 +148,15 @@ onMounted(() => {
 	<div id="map">
 		<el-button @click="changeEditMode">测试用</el-button>
 	</div>
+
+	<el-dialog v-model="dialogVisible" :title="choosedMarker?.name">
+		<div>{{ choosedMarker?.desc }}</div>
+		<el-button @click="delMarker(choosedMarker?.id)">删除</el-button>
+		<el-button>修改</el-button>
+		<el-button>好评: {{ choosedMarker?.pos_num }}</el-button>
+		<el-button>恶评: {{ choosedMarker?.neg_num }}</el-button>
+	</el-dialog>
+
 	<el-drawer
 		v-model="drawer"
 		@close="handleClosedDrawer"
