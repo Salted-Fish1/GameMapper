@@ -13,11 +13,18 @@ class MessageService {
 		]);
 	}
 
-	async getMessage() {
-		const statement =
-			'SELECT `id`, 	`name`, `desc`, ( SELECT `x` FROM location AS loc WHERE msg.loc_id = loc.id ) AS x, ( SELECT `y` FROM location AS loc WHERE msg.loc_id = loc.id ) AS y, ( SELECT `pos_num` FROM evaluation AS eval WHERE msg.eval_id = eval.id ) AS pos_num, ( SELECT `neg_num` FROM evaluation AS eval WHERE msg.eval_id = eval.id ) AS neg_num  FROM message AS msg';
-		const result = await connection.execute(statement);
-		// console.log(result[0]);
+	async getMessage(type) {
+		const statement1 =
+			'SELECT `id`, 	`name`, `desc`, `type_id` , ( SELECT `x` FROM location AS loc WHERE msg.loc_id = loc.id ) AS x, ( SELECT `y` FROM location AS loc WHERE msg.loc_id = loc.id ) AS y, ( SELECT `pos_num` FROM evaluation AS eval WHERE msg.eval_id = eval.id ) AS pos_num, ( SELECT `neg_num` FROM evaluation AS eval WHERE msg.eval_id = eval.id ) AS neg_num  FROM message AS msg WHERE msg.type_id = ?';
+
+		const statement2 =
+			'SELECT `id`, 	`name`, `desc`, `type_id` , ( SELECT `x` FROM location AS loc WHERE msg.loc_id = loc.id ) AS x, ( SELECT `y` FROM location AS loc WHERE msg.loc_id = loc.id ) AS y, ( SELECT `pos_num` FROM evaluation AS eval WHERE msg.eval_id = eval.id ) AS pos_num, ( SELECT `neg_num` FROM evaluation AS eval WHERE msg.eval_id = eval.id ) AS neg_num  FROM message AS msg';
+		let result = null;
+		if (type == undefined) {
+			result = await connection.execute(statement2);
+		} else {
+			result = await connection.execute(statement1, [type]);
+		}
 		return result[0];
 	}
 

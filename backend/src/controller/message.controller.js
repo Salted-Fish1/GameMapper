@@ -10,7 +10,10 @@ class MessageController {
 	}
 
 	async getMessage(ctx, next) {
-		ctx.body = await MessageService.getMessage();
+		// console.log(ctx.request.body.type);
+		const type = ctx.request.body.type;
+		console.log(type);
+		ctx.body = await MessageService.getMessage(type);
 	}
 
 	async delMessage(ctx, next) {

@@ -23,9 +23,11 @@ const newMarkerName = ref('')
 const newMarkerDesc = ref('')
 const markerTypeRadio = ref()
 const markerMap = new Map()
+const markerSet = new Set()
 let editMode = false
 const dialogVisible = ref(false)
 let choosedMarker = ref()
+const checkboxGroup1 = ref([])
 
 const changeEditMode = () => {
 	console.log('old mode ' + editMode)
@@ -101,6 +103,43 @@ const delMarker = (id: number) => {
 	axios.delete('/api/message/' + id).then((res) => console.log(res))
 }
 
+const demoShowChoosed = () => {
+	console.log(checkboxGroup1.value)
+}
+
+let demoShowFlag = false
+
+const demoFlush = () => {
+	console.log('--------------')
+
+	markerSet.forEach((value) => {
+		const id = value['_leaflet_id']
+		// console.log(id)
+		const type = markerMap.get(id)['type_id']
+
+		if (checkboxGroup1.value.find((el) => el === type) === undefined) {
+			console.log(value)
+
+			value.remove()
+		} else {
+			value.addTo(map)
+		}
+	})
+
+	// if (demoShowFlag) {
+	// 	demoShowFlag = false
+	// 	markerSet.forEach((value) => {
+	// 		value.remove()
+	// 	})
+	// } else {
+	// 	console.log('do nothing')
+	// 	markerSet.forEach((value) => {
+	// 		value.addTo(map)
+	// 	})
+	// 	demoShowFlag = true
+	// }
+}
+
 onMounted(() => {
 	map = L.map('map', {
 		attributionControl: false,
@@ -115,6 +154,15 @@ onMounted(() => {
 		zoomOffset: 0,
 	}).addTo(map)
 
+	// axios({
+	// 	headers: {
+	// 		'Content-Type': 'application/json',
+	// 	},
+	// 	method: 'post',
+	// 	url: '/api/message',
+	// 	data: tem,
+	// })
+
 	axios.get('/api/message').then((res) => {
 		const items = res.data
 		for (const item of items) {
@@ -124,8 +172,12 @@ onMounted(() => {
 			tempMarker.on('click', (e) => {
 				openMarkerBox(tempMarker)
 			})
+			// tempMarker.remove()
+			// console.log(tempMarker)
+
 			const tempMarkerId: number = tempMarker['_leaflet_id']
-			markerMap[tempMarkerId] = item
+			markerMap.set(tempMarkerId, item)
+			markerSet.add(tempMarker)
 		}
 		// console.log(markerMap)
 	})
@@ -137,7 +189,7 @@ onMounted(() => {
 			newMarkerX = e.latlng.lat
 			newMarkerY = e.latlng.lng
 			drawer.value = true
-			markerSet.add(newMarker)
+			// markerSet.add(newMarker)
 			// console.log(markerSet)
 		}
 	})
@@ -147,6 +199,17 @@ onMounted(() => {
 <template>
 	<div id="map">
 		<el-button @click="changeEditMode">测试用</el-button>
+	</div>
+	<div>
+		<el-checkbox-group v-model="checkboxGroup1">
+			<template v-for="item of markerTypeStore.markerTypeArray">
+				<el-checkbox :label="item.id" border>
+					{{ item.name }}
+				</el-checkbox>
+			</template>
+		</el-checkbox-group>
+		<el-button @click="demoShowChoosed">展示选中</el-button>
+		<el-button @click="demoFlush">刷新</el-button>
 	</div>
 
 	<el-dialog v-model="dialogVisible" :title="choosedMarker?.name">
@@ -189,7 +252,7 @@ onMounted(() => {
 <style scoped>
 #map {
 	width: 100vw;
-	height: 100vh;
+	height: 80vh;
 	background-color: rgb(0, 0, 0);
 }
 </style>
